@@ -1,0 +1,363 @@
+class pedido {
+    constructor(clienteid, status, datadopedido){
+        this.id = generateid();
+        this.clienteid = generateid();
+        this.status = status;
+        this.datadopedido = datadopedido;
+    }
+}
+
+class funcionario {
+    constructor(nomedeusuario, cpf, email, senha){
+        this.id = generateid();
+        this.nomedeusuario = nomedeusuario();
+        this.cpf = cpf;
+        this.email = email;
+        this.senha = senha;
+    }
+}
+
+class cliente{
+    constructor(nome, datadenascimento, cpf, email, senha){
+        this.id = generateid();
+        this.nome = nome;
+        this.datadenascimento = datadenascimento
+        this.cpf = cpf;
+        this.email = email;
+        this.senha = senha;
+    }
+}
+
+class produto{
+    constructor(datadevalidade,preco,quantidadedoestoque, nome, descricao){
+        this.id = generateid();
+    this.datadevalidade = datadevalidade;
+    this.nome = nome;
+    this.quantidadedoestoque = quantidadedoestoque;
+    this.descricao = descricao;
+
+
+    }   
+}
+const readline = require('readline');
+const Pedido = require('./Pedido');
+const Funcionario = require('./Funcionario');
+const Cliente = require('./Cliente');
+const Produto = require('./Produto');
+
+class Sistema {
+  constructor() {
+    this.funcionarios = [];
+    this.clientes = [];
+    this.produtos = [];
+    this.pedidos = [];
+    this.usuarioAtual = null;
+    this.rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+  }
+
+  iniciar() {
+    this.menuPrincipal();
+  }
+
+  menuPrincipal() {
+    console.log(`
+      1. Fazer Login
+      2. Fazer Cadastro
+      3. Sair do Programa
+    `);
+
+    this.rl.question('Escolha uma opção: ', (resposta) => {
+      switch (resposta) {
+        case '1':
+          this.fazerLogin();
+          break;
+        case '2':
+          this.fazerCadastro();
+          break;
+        case '3':
+          this.sairPrograma();
+          break;
+        default:
+          console.log('Opção inválida.');
+          this.menuPrincipal();
+      }
+    });
+  }
+
+  fazerLogin() {
+    this.rl.question('Você é (1) Cliente ou (2) Funcionário? ', (resposta) => {
+      if (resposta === '1') {
+        this.loginCliente();
+      } else if (resposta === '2') {
+        this.loginFuncionario();
+      } else {
+        console.log('Opção inválida.');
+        this.menuPrincipal();
+      }
+    });
+  }
+
+  loginCliente() {
+    this.rl.question('Email: ', (email) => {
+      this.rl.question('Senha: ', (senha) => {
+        const cliente = this.clientes.find(
+          (cliente) => cliente.email === email && cliente.senha === senha
+        );
+        if (cliente) {
+          this.usuarioAtual = cliente;
+          console.log('Login realizado com sucesso!');
+          this.menuCliente();
+        } else {
+          console.log('Email ou senha inválidos.');
+          this.menuPrincipal();
+        }
+      });
+    });
+  }
+
+  loginFuncionario() {
+    this.rl.question('Email: ', (email) => {
+      this.rl.question('Senha: ', (senha) => {
+        const funcionario = this.funcionarios.find(
+          (funcionario) => funcionario.email === email && funcionario.senha === senha
+        );
+        if (funcionario) {
+          this.usuarioAtual = funcionario;
+          console.log('Login realizado com sucesso!');
+          this.menuFuncionario();
+        } else {
+          console.log('Email ou senha inválidos.');
+          this.menuPrincipal();
+        }
+      });
+    });
+  }
+
+  fazerCadastro() {
+    this.rl.question('Você é (1) Cliente ou (2) Funcionário? ', (resposta) => {
+      if (resposta === '1') {
+        this.cadastrarCliente();
+      } else if (resposta === '2') {
+        this.cadastrarFuncionario();
+      } else {
+        console.log('Opção inválida.');
+        this.menuPrincipal();
+      }
+    });
+  }
+
+  cadastrarCliente() {
+    this.rl.question('Nome: ', (nome) => {
+      this.rl.question('Data de Nascimento: ', (dataNascimento) => {
+        this.rl.question('CPF: ', (cpf) => {
+          this.rl.question('Email: ', (email) => {
+            this.rl.question('Senha: ', (senha) => {
+              const cliente = new Cliente(
+                this.clientes.length + 1,
+                nome,
+                dataNascimento,
+                cpf,
+                email,
+                senha
+              );
+              this.clientes.push(cliente);
+              console.log('Cliente cadastrado com sucesso!');
+              this.menuPrincipal();
+            });
+          });
+        });
+      });
+    });
+  }
+
+  cadastrarFuncionario() {
+    this.rl.question('Nome de Usuário: ', (nomeUsuario) => {
+      this.rl.question('CPF: ', (cpf) => {
+        this.rl.question('Email: ', (email) => {
+          this.rl.question('Senha: ', (senha) => {
+            const funcionario = new Funcionario(
+              this.funcionarios.length + 1,
+              nomeUsuario,
+              cpf,
+              email,
+              senha
+            );
+            this.funcionarios.push(funcionario);
+            console.log('Funcionário cadastrado com sucesso!');
+            this.menuPrincipal();
+          });
+        });
+      });
+    });
+  }
+
+  sairPrograma() {
+    console.log('Saindo do programa...');
+    this.rl.close();
+  }
+
+  menuFuncionario() {
+    console.log(`
+      4. Ver Meus Dados
+      5. Modificar Meus Dados
+      6. Ver Lista de Pedidos (Ordem Cronológica)
+      7. Ver Lista de Produtos (Ordem Alfabética)
+      8. Ver Lista de Clientes (Ordem Alfabética)
+      9. Mudar status do pedido (Pedido pendente, adiado, realizado, cancelado)
+      10. Adicionar Produto
+      3. Sair
+    `);
+
+    this.rl.question('Escolha uma opção: ', (resposta) => {
+      switch (resposta) {
+        case '4':
+          this.verMeusDadosFuncionario();
+          break;
+        case '5':
+          this.modificarMeusDadosFuncionario();
+          break;
+        case '6':
+          this.verListaPedidos();
+          break;
+        case '7':
+          this.verListaProdutos();
+          break;
+        case '8':
+          this.verListaClientes();
+          break;
+        case '9':
+          this.mudarStatusPedido();
+          break;
+        case '10':
+          this.adicionarProduto();
+          break;
+        case '3':
+          this.sairPrograma();
+          break;
+        default:
+          console.log('Opção inválida.');
+          this.menuFuncionario();
+      }
+    });
+  }
+
+  verMeusDadosFuncionario() {
+    console.log('Seus dados:', this.usuarioAtual);
+    this.menuFuncionario();
+  }
+
+  modificarMeusDadosFuncionario() {
+    this.rl.question('Novo Nome de Usuário: ', (nomeUsuario) => {
+      this.rl.question('Novo CPF: ', (cpf) => {
+        this.rl.question('Novo Email: ', (email) => {
+          this.rl.question('Nova Senha: ', (senha) => {
+            this.usuarioAtual.nomeUsuario = nomeUsuario;
+            this.usuarioAtual.cpf = cpf;
+            this.usuarioAtual.email = email;
+            this.usuarioAtual.senha = senha;
+            console.log('Dados atualizados com sucesso!');
+            this.menuFuncionario();
+          });
+        });
+      });
+    });
+  }
+
+  verListaPedidos() {
+    console.log('Lista de pedidos:', this.pedidos.sort((a, b) => new Date(a.data) - new Date(b.data)));
+    this.menuFuncionario();
+  }
+
+  verListaProdutos() {
+    console.log('Lista de produtos:', this.produtos.sort((a, b) => a.nome.localeCompare(b.nome)));
+    this.menuFuncionario();
+  }
+
+  verListaClientes() {
+    console.log('Lista de clientes:', this.clientes.sort((a, b) => a.nome.localeCompare(b.nome)));
+    this.menuFuncionario();
+  }
+
+  mudarStatusPedido() {
+    this.rl.question('ID do pedido: ', (idPedido) => {
+      this.rl.question('Novo status: ', (novoStatus) => {
+        const pedido = this.pedidos.find(p => p.id == idPedido);
+        if (pedido) {
+          pedido.status = novoStatus;
+          console.log('Status do pedido atualizado com sucesso!');
+        } else {
+          console.log('Pedido não encontrado.');
+        }
+        this.menuFuncionario();
+      });
+    });
+  }
+
+  adicionarProduto() {
+    this.rl.question('Nome do Produto: ', (nome) => {
+      this.rl.question('Descrição do Produto: ', (descricao) => {
+        this.rl.question('Data de Validade: ', (dataValidade) => {
+          this.rl.question('Preço: ', (preco) => {
+            this.rl.question('Quantidade em Estoque: ', (quantidadeEstoque) => {
+              const produto = new Produto(
+                this.produtos.length + 1,
+                nome,
+                descricao,
+                dataValidade,
+                preco,
+                quantidadeEstoque
+              );
+              this.produtos.push(produto);
+              console.log('Produto adicionado com sucesso!');
+              this.menuFuncionario();
+            });
+          });
+        });
+      });
+    });
+  }
+
+  menuCliente() {
+    console.log(`
+      1. Ver Meus Dados
+      2. Modificar Meus Dados
+      3. Ver Lista de Produtos (Ordem Alfabética)
+      4. Fazer Pedido
+      5. Cancelar Pedido
+      6. Ver Meus Pedidos (Ordem Cronológica)
+      7. Avaliar Pedido
+      8. Visualizar Avaliações
+      9. Sair
+    `);
+
+    this.rl.question('Escolha uma opção: ', (resposta) => {
+      switch (resposta) {
+        case '1':
+          this.verMeusDadosCliente();
+          break;
+        case '2':
+          this.modificarMeusDadosCliente();
+          break;
+        case '3':
+          this.verListaProdutos();
+          break;
+        case '4':
+          this.fazerPedido();
+          break;
+        case '5':
+          this.cancelarPedido();
+          break;
+        case '6':
+          this.verMeusPedidos();
+          break;
+        case '7':
+          this.avaliarPedido();
+          break;
+        case '8':
+          this.visualiza
+        console.log(sistema);
+
+    
